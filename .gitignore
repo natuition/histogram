@@ -118,3 +118,4 @@ config/config_local.json
 temp.py
 resize.py
 output/*
+test.py
