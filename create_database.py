@@ -1,15 +1,12 @@
 from tarax.colordescriptor import ColorDescriptor
 import glob
 import cv2
+import json
+import numpy as np
 
-args = {}
-args["index"] = r"database\csv\database.csv"
-args["dataset"] = r"database\images"
-args["query_image_path"] = r"input\prise2.jpg"
-args["x_view_size"] = 880
-args["y_view_size"] = 750
-args["output_image_path"] = r"output\prise2 - AOI.jpg"
-args["output_image_path_full"] = r"output\prise2 - AOI Full.jpg"
+# load config
+with open("config/config.json", "r") as config_file:
+    config = json.loads(config_file.read())
 
 # initialize the color descriptor
 # For our image search engine, we’ll be utilizing a 3D color histogram in the HSV color space with 8 bins for the Hue channel, 12 bins for the saturation channel, and 3 bins for the value channel, yielding a total feature vector of dimension 8 x 12 x 3 = 288.
@@ -18,25 +15,55 @@ args["output_image_path_full"] = r"output\prise2 - AOI Full.jpg"
 cd = ColorDescriptor((8, 12, 3))
 
 
-def split_image():
-    image = cv2.imread(args["query_image_path"])
-    y_center, x_center = int(image.shape[0] / 2), int(image.shape[1] / 2)
-    image = cv2.circle(image, (x_center, y_center), 5, (255, 0, 0), 2)
+def split_image(image):
+    # image = cv2.rectangle(image, (aoi_x_start, aoi_y_start), (aoi_x_end, aoi_y_end), (255, 0, 0), 2)
+    # image = cv2.circle(image, (img_x_center, img_y_center), 5, (255, 0, 0), 2)
 
-    # area of interest
-    aoi_x_start, aoi_y_start = x_center - int(args["x_view_size"] / 2), y_center - int(args["y_view_size"] / 2)
-    aoi_x_end, aoi_y_end = aoi_x_start + args["x_view_size"], aoi_y_start + args["y_view_size"]
-    aoi_image = image[aoi_y_start:aoi_y_end, aoi_x_start:aoi_x_end]
-    image = cv2.rectangle(image, (aoi_x_start, aoi_y_start), (aoi_x_end, aoi_y_end), (255, 0, 0), 2)
+    img_y_center, img_x_center = int(image.shape[0] / 2), int(image.shape[1] / 2)  # y_c = 972, x_c = 1296
 
-    cv2.imwrite(args["output_image_path"], aoi_image)
-    cv2.imwrite(args["output_image_path_full"], image)
+    aoi_1_y_start = img_y_center - int(config["aoi_h"] / 2)
+    aoi_1_y_end = img_y_center + config["from_center_to_cork_y"]
+    aoi_1_x_start = img_x_center - int(config["aoi_w"] / 2)
+    aoi_1_x_end = img_x_center + int(config["aoi_w"] / 2)
+
+    aoi_2_y_start = aoi_1_y_end
+    aoi_2_y_end = img_y_center + int(config["aoi_h"] / 2)
+    aoi_2_x_start = aoi_1_x_start
+    aoi_2_x_end = img_x_center - int(config["cork_w"] / 2)
+
+    aoi_3_y_start = aoi_1_y_end
+    aoi_3_y_end = aoi_2_y_end
+    aoi_3_x_start = img_x_center + int(config["cork_w"] / 2)
+    aoi_3_x_end = img_x_center + int(config["aoi_w"] / 2)
+
+    # get areas of interest
+    aoi_image_1 = image[aoi_1_y_start:aoi_1_y_end, aoi_1_x_start:aoi_1_x_end]
+    aoi_image_2 = image[aoi_2_y_start:aoi_2_y_end, aoi_2_x_start:aoi_2_x_end]
+    aoi_image_3 = image[aoi_3_y_start:aoi_3_y_end, aoi_3_x_start:aoi_3_x_end]
+
+    # draw AOIs on src img
+    image = cv2.rectangle(image, (aoi_1_x_start, aoi_1_y_start), (aoi_1_x_end, aoi_1_y_end), (255, 0, 0), 2)
+    image = cv2.rectangle(image, (aoi_2_x_start, aoi_2_y_start), (aoi_2_x_end, aoi_2_y_end), (255, 0, 0), 2)
+    image = cv2.rectangle(image, (aoi_3_x_start, aoi_3_y_start), (aoi_3_x_end, aoi_3_y_end), (255, 0, 0), 2)
+
+    cv2.imwrite(config["output_image_dir"] +
+                config["output_image_name"] + " 1" +
+                config["output_image_extension"], aoi_image_1)
+    cv2.imwrite(config["output_image_dir"] +
+                config["output_image_name"] + " 2" +
+                config["output_image_extension"], aoi_image_2)
+    cv2.imwrite(config["output_image_dir"] +
+                config["output_image_name"] + " 3" +
+                config["output_image_extension"], aoi_image_3)
+    cv2.imwrite(config["output_image_dir"] +
+                config["output_image_name"] + " Orig with lines" +
+                config["output_image_extension"], image)
 
 
 def create_database():
-    with open(args["index"], "w") as output_file:
+    with open(config["index"], "w") as output_file:
         # use glob to grab the image paths and loop over them
-        for image_path in glob.glob(args["dataset"] + "/*.jpg"):  # or "/*.png"
+        for image_path in glob.glob(config["patterns_dataset_dir"] + "/*.jpg"):  # or "/*.png"
             # extract the image ID (i.e. the unique filename) from the image
             # path and load the image itself
             image_unique_name = image_path[image_path.rfind("/") + 1:]
@@ -48,7 +75,8 @@ def create_database():
 
 
 def main():
-    split_image()
+    image = cv2.imread(config["query_image_path"])
+    split_image(image)
 
 
 if __name__ == "__main__":
