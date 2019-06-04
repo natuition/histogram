@@ -1,4 +1,5 @@
 from tarax.colordescriptor import ColorDescriptor
+from tarax.searcher import Searcher
 import glob
 import cv2
 import json
@@ -152,5 +153,44 @@ def main():
     create_database_from_files()
 
 
+# temp test section
+test_image = cv2.imread(config["query_image_path"])
+sr = Searcher(config["hist_database_path"])
+
+
+def temp_perf_test_func_to_execute():
+    aoi_areas = get_aoi_areas(test_image)
+    fragments = []
+
+    for area in aoi_areas:
+        fragments.extend(get_fragments(area))
+
+    # take max of min
+    result = ["Init value", 0]
+    i = 1
+    for fragment in fragments:
+        print("Processing fragment ", i)
+        i += 1
+        histogram = cd.describe(fragment)
+        key, dist = sr.search_best(histogram)
+        if dist > result[1]:
+            result[0], result[1] = key, dist
+
+    # uncomment if you want to save results on HDD
+    # CAUTION! saving WILL slow down algorythm, dont use when measuring
+    """
+    with open(config["output_image_dir"] + "most not similar fragment with patterns DB.txt", "w") as file:
+        data = "Path: " + result[0] + "\nDist: " + result[1]
+        file.write(data)
+    """
+
+
+def performance_test():
+    import timeit
+    execution_time = timeit.repeat(temp_perf_test_func_to_execute, number=1, repeat=5, globals=globals())
+    print("Results:", execution_time)
+    print("Min time:", min(execution_time))
+
+
 if __name__ == "__main__":
-    main()
+    performance_test()

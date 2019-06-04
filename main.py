@@ -3,6 +3,7 @@ from tarax.searcher import Searcher
 import cv2
 import numpy as np
 import json
+import create_database
 
 # load config
 with open("config/config.json", "r") as config_file:
