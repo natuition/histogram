@@ -32,8 +32,8 @@ def get_weed_fragments():
     # if there will remain a piece of the image that is less than the shift distance flag
     additional_w_proc = resized_w % config["fragment_x_offset"] != 0
     additional_h_proc = resized_h % config["fragment_y_offset"] != 0
-    offsets_x_cnt = resized_w // config["fragment_x_offset"]
-    offsets_y_cnt = resized_h // config["fragment_y_offset"]
+    offsets_x_cnt = resized_w // config["fragment_x_offset"] - 1
+    offsets_y_cnt = resized_h // config["fragment_y_offset"] - 1
     cur_start_x, cur_start_y, cur_end_x, cur_end_y = 0, 0, config["fragment_w"], config["fragment_h"]
 
     print("Last line processing:", additional_h_proc)
