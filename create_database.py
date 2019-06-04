@@ -194,6 +194,41 @@ def performance_test():
     print("Min time:", min(execution_time))
 
 
+def performance_big_test():
+    import timeit
+    test_results = []
+
+    ex_time_120_60 = timeit.repeat(temp_perf_test_func_to_execute, number=1, repeat=5, globals=globals())
+    test_results.append(ex_time_120_60)
+
+    config["fragment_w"] = 150,
+    config["fragment_h"] = 150,
+    config["fragment_x_offset"] = 75
+    config["fragment_y_offset"] = 75
+    ex_time_150_75 = timeit.repeat(temp_perf_test_func_to_execute, number=1, repeat=5, globals=globals())
+    test_results.append(ex_time_150_75)
+
+    config["fragment_w"] = 200,
+    config["fragment_h"] = 200,
+    config["fragment_x_offset"] = 100
+    config["fragment_y_offset"] = 100
+    ex_time_200_100 = timeit.repeat(temp_perf_test_func_to_execute, number=1, repeat=5, globals=globals())
+    test_results.append(ex_time_200_100)
+
+    config["fragment_w"] = 250,
+    config["fragment_h"] = 250,
+    config["fragment_x_offset"] = 125
+    config["fragment_y_offset"] = 125
+    ex_time_250_125 = timeit.repeat(temp_perf_test_func_to_execute, number=1, repeat=5, globals=globals())
+    test_results.append(ex_time_250_125)
+
+    print(test_results)
+
+    with open("performance_test.txt", "w") as file:
+        for result in test_results:
+            file.write(str(result) + ", Min: " + min(result) + "\n")
+
+
 if __name__ == "__main__":
     performance_test()
     #generate_db_from_image()
