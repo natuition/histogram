@@ -169,7 +169,7 @@ def temp_perf_test_func_to_execute():
     result = ["Init value", 0]
     i = 1
     for fragment in fragments:
-        print("Processing fragment ", i)
+        print("Processing fragment ", i, "of", len(fragments))
         i += 1
         histogram = cd.describe(fragment)
         key, dist = sr.search_best(histogram)
