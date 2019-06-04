@@ -166,21 +166,23 @@ def temp_perf_test_func_to_execute():
         fragments.extend(get_fragments(area))
 
     # take max of min
-    result = ["Init value", 0]
+    result_info = ["Init value", 0]
+    result_frag = None
     i = 1
     for fragment in fragments:
         print("Processing fragment ", i, "of", len(fragments))
         i += 1
         histogram = cd.describe(fragment)
         key, dist = sr.search_best(histogram)
-        if dist > result[1]:
-            result[0], result[1] = key, dist
+        if dist > result_info[1]:
+            result_info[0], result_info[1], result_frag = key, dist, fragment
 
     # uncomment if you want to save results on HDD
     # CAUTION! saving WILL slow down algorythm, dont use when measuring
     """
+    cv2.imwrite(config["output_image_dir"] + "result_fragment.jpg", result_frag)
     with open(config["output_image_dir"] + "most not similar fragment with patterns DB.txt", "w") as file:
-        data = "Path: " + result[0] + "\nDist: " + result[1]
+        data = "Path: " + result_info[0] + "\nDist: " + result_info[1]
         file.write(data)
     """
 
