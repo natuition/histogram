@@ -140,7 +140,7 @@ def create_database_from_files():
             output_file.write("%s,%s\n" % (image_unique_name, ",".join(features)))
 
 
-def main():
+def generate_db_from_image():
     image = cv2.imread(config["query_image_path"])
     aoi_areas = get_aoi_areas(image)
     patterns = []
@@ -194,3 +194,4 @@ def performance_test():
 
 if __name__ == "__main__":
     performance_test()
+    #generate_db_from_image()
