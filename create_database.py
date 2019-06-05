@@ -201,22 +201,22 @@ def performance_big_test():
     ex_time_120_60 = timeit.repeat(temp_perf_test_func_to_execute, number=1, repeat=5, globals=globals())
     test_results.append(ex_time_120_60)
 
-    config["fragment_w"] = 150,
-    config["fragment_h"] = 150,
+    config["fragment_w"] = 150
+    config["fragment_h"] = 150
     config["fragment_x_offset"] = 75
     config["fragment_y_offset"] = 75
     ex_time_150_75 = timeit.repeat(temp_perf_test_func_to_execute, number=1, repeat=5, globals=globals())
     test_results.append(ex_time_150_75)
 
-    config["fragment_w"] = 200,
-    config["fragment_h"] = 200,
+    config["fragment_w"] = 200
+    config["fragment_h"] = 200
     config["fragment_x_offset"] = 100
     config["fragment_y_offset"] = 100
     ex_time_200_100 = timeit.repeat(temp_perf_test_func_to_execute, number=1, repeat=5, globals=globals())
     test_results.append(ex_time_200_100)
 
-    config["fragment_w"] = 250,
-    config["fragment_h"] = 250,
+    config["fragment_w"] = 250
+    config["fragment_h"] = 250
     config["fragment_x_offset"] = 125
     config["fragment_y_offset"] = 125
     ex_time_250_125 = timeit.repeat(temp_perf_test_func_to_execute, number=1, repeat=5, globals=globals())
@@ -230,5 +230,5 @@ def performance_big_test():
 
 
 if __name__ == "__main__":
-    performance_test()
+    performance_big_test()
     #generate_db_from_image()
