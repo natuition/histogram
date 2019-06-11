@@ -1,0 +1,17 @@
+config = {}
+config["hist_database_path"] = "database\\csv\\database.csv"
+config["patterns_dataset_dir"] = "database\\images"
+config["query_image_path"] = "input\\prise8.jpg"
+config["output_image_dir"] = "output\\"
+config["output_image_name"] = "prise2 - AOI"
+config["output_image_extension"] = ".jpg"
+config["aoi_w"] = 880
+config["aoi_h"] = 750
+config["fragment_w"] = 120
+config["fragment_h"] = 120
+config["fragment_x_offset"] = 60
+config["fragment_y_offset"] = 60
+config["cork_w"] = 120
+config["cork_h"] = 140
+config["from_center_to_cork_y"] = 230
+config["weed_keyword"] = "leaf"

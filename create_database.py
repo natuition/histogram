@@ -4,10 +4,7 @@ import glob
 import cv2
 import json
 import numpy as np
-
-# load config
-with open("config/config.json", "r") as config_file:
-    config = json.loads(config_file.read())
+from config.local import *
 
 # initialize the color descriptor
 # For our image search engine, we’ll be utilizing a 3D color histogram in the HSV color space with 8 bins for the Hue channel, 12 bins for the saturation channel, and 3 bins for the value channel, yielding a total feature vector of dimension 8 x 12 x 3 = 288.

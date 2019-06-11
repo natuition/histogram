@@ -4,10 +4,7 @@ import cv2
 import numpy as np
 import json
 import create_database
-
-# load config
-with open("config/config.json", "r") as config_file:
-    config = json.loads(config_file.read())
+from config.local import *
 
 # initialize the image descriptor
 print("Loading database...")
