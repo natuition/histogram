@@ -1,5 +1,4 @@
-from tarax.colordescriptor import ColorDescriptor
-from tarax.searcher import Searcher
+from core.vision import HistVision
 import glob
 import cv2
 import json
@@ -133,7 +132,7 @@ def create_database_from_files():
             image = cv2.imread(image_path)
 
             # make image description and convert to str
-            features = [str(f) for f in cd.describe(image)]
+            features = [str(f) for f in cd.calc_hist(image)]
             output_file.write("%s,%s\n" % (image_unique_name, ",".join(features)))
 
 
@@ -169,7 +168,7 @@ def temp_perf_test_func_to_execute():
     for fragment in fragments:
         print("Processing fragment ", i, "of", len(fragments))
         i += 1
-        histogram = cd.describe(fragment)
+        histogram = cd.calc_hist(fragment)
         key, dist = sr.search_best(histogram)
         if dist > result_info[1]:
             result_info[0], result_info[1], result_frag = key, dist, fragment

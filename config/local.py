@@ -1,5 +1,5 @@
 config = {}
-config["hist_database_path"] = "database\\csv\\database.csv"
+config["hist_database_path"] = "database\csv\database.npy"
 config["patterns_dataset_dir"] = "database\\images"
 config["query_image_path"] = "input\\prise8.jpg"
 config["output_image_dir"] = "output\\"
@@ -15,3 +15,7 @@ config["cork_w"] = 120
 config["cork_h"] = 140
 config["from_center_to_cork_y"] = 230
 config["weed_keyword"] = "leaf"
+config["hist_channels"] = [0, 1, 2]
+config["hist_size"] = (8, 12, 3)
+config["hist_range"] = [0, 180, 0, 256, 0, 256]
+config["search_max_dist"] = True

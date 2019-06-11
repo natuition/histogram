@@ -1,5 +1,4 @@
-from tarax.colordescriptor import ColorDescriptor
-from tarax.searcher import Searcher
+from core.vision import HistVision
 import cv2
 import numpy as np
 import json
@@ -46,7 +45,7 @@ def get_weed_fragments():
         for column in range(offsets_x_cnt):  # cols
             print("Starting column:", column)
 
-            features = cd.describe(resized_image[cur_start_y:cur_end_y, cur_start_x:cur_end_x])
+            features = cd.calc_hist(resized_image[cur_start_y:cur_end_y, cur_start_x:cur_end_x])
             key, distance = sr.search_best(features)
             if config["weed_keyword"] in key:
                 weed_fragments.append([cur_start_x, cur_start_y, cur_end_x, cur_end_y, key, distance])
@@ -57,7 +56,7 @@ def get_weed_fragments():
         # if there remains a piece of the image (width)
         if additional_w_proc:
             # start_x = w - fragment_x_size, end_x = w (taking first right fragment of the current line)
-            features = cd.describe(resized_image[cur_start_y:cur_end_y, resized_w - config["fragment_w"]:resized_w])
+            features = cd.calc_hist(resized_image[cur_start_y:cur_end_y, resized_w - config["fragment_w"]:resized_w])
             key, distance = sr.search_best(features)
             if config["weed_keyword"] in key:
                 weed_fragments.append([resized_w - config["fragment_w"], cur_start_y, resized_w, cur_end_y, key, distance])
@@ -80,7 +79,7 @@ def get_weed_fragments():
         for column in range(offsets_x_cnt):  # cols
             print("Starting column:", column)
 
-            features = cd.describe(resized_image[cur_start_y:cur_end_y, cur_start_x:cur_end_x])
+            features = cd.calc_hist(resized_image[cur_start_y:cur_end_y, cur_start_x:cur_end_x])
             key, distance = sr.search_best(features)
             if config["weed_keyword"] in key:
                 weed_fragments.append([cur_start_x, cur_start_y, cur_end_x, cur_end_y, key, distance])
@@ -91,7 +90,7 @@ def get_weed_fragments():
         # if there remains a piece of the image (width)
         if additional_w_proc:
             # start_x = w - fragment_x_size, end_x = w (taking first right fragment of the current line)
-            features = cd.describe(resized_image[cur_start_y:cur_end_y, resized_w - config["fragment_w"]:resized_w])
+            features = cd.calc_hist(resized_image[cur_start_y:cur_end_y, resized_w - config["fragment_w"]:resized_w])
             key, distance = sr.search_best(features)
             if config["weed_keyword"] in key:
                 weed_fragments.append([resized_w - config["fragment_w"], cur_start_y, resized_w, cur_end_y, key, distance])
