@@ -1,4 +1,3 @@
-from core.vision import HistVision
 import glob
 import cv2
 import json
