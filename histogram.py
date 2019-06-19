@@ -1,9 +1,16 @@
+#!/usr/bin/env python
+
+from config.local import *
 import cv2 as cv
 import numpy as np
-from config.local import *
 import pickle
 import uuid
 import glob
+from connectors import SmoothieConnector
+
+if config["use_camera"]:
+    from picamera.array import PiRGBArray
+    from picamera import PiCamera
 
 
 def dump_database(database):
@@ -42,19 +49,32 @@ def calc_hist(image, mask=None):
     return cv.normalize(hist, hist)
 
 
-def find_most_unlike(query_hist, database):
-    result = {"path": "Init value",
-              "dist": 0}
+def find_most_unlike_hist(query_hist, database: list):
+    most_unlike = {"path": "Init value", "dist": 0}
     # bigger dist means that image is more unlike grass
     for record in database:
         dist = cv.compareHist(query_hist, record["hist"], config["hist_comp_method"])
         if config["lesser_dist_more_similar"]:
-            if dist > result["dist"]:
-                result["path"], result["dist"] = record["path"], dist
+            if dist > most_unlike["dist"]:
+                most_unlike["path"], most_unlike["dist"] = record["path"], dist
         else:
-            if dist < result["dist"]:
-                result["path"], result["dist"] = record["path"], dist
-    return result
+            if dist < most_unlike["dist"]:
+                most_unlike["path"], most_unlike["dist"] = record["path"], dist
+    return most_unlike
+
+
+def find_most_unlike_frag(fragments: list, database: list):
+    most_unlike_frag = None
+    most_unlike_val = {"path": "Init value", "dist": 0}
+    for fragment in fragments:
+        cur_frag_val = find_most_unlike_hist(calc_hist(fragment["img"]), database)
+        if config["lesser_dist_more_similar"]:
+            if cur_frag_val["dist"] > most_unlike_val["dist"]:
+                most_unlike_frag, most_unlike_val = fragment, cur_frag_val
+        else:
+            if cur_frag_val["dist"] < most_unlike_val["dist"]:
+                most_unlike_frag, most_unlike_val = fragment, cur_frag_val
+    return most_unlike_frag, most_unlike_val
 
 
 def _frag_process_columns(fragments: list, image, cur_end_y, last_col_processing):
@@ -105,15 +125,20 @@ def get_aoi_fragments(image):
     return fragments
 
 
-def mark_fragment_on_img(image, fragment):
+def debug_mark_frag_on_img(image, fragment):
+    """Draws rectangle over fragment (using fragment global coords) on source image"""
+
     # single fragment structure is {"img", "start_x", "start_y", "end_x", "end_y"}
-
-    # if we want to draw fragment itself (needs black background as arg image)
-    # image[fragment["start_y"]:fragment["end_y"], fragment["start_x"]:fragment["end_x"]] = fragment["img"]
-
-    # if we want to draw rectangle over fragment on source image
     image = cv.rectangle(image, (fragment["start_x"], fragment["start_y"]),
                          (fragment["end_x"], fragment["end_y"]), (255, 0, 0), 2)
+    return image
+
+
+def debug_draw_frag_on_img(image, fragment):
+    """Draws fragment itself on the image (needs different from frag color background as arg image)"""
+
+    # single fragment structure is {"img", "start_x", "start_y", "end_x", "end_y"}
+    image[fragment["start_y"]:fragment["end_y"], fragment["start_x"]:fragment["end_x"]] = fragment["img"]
     return image
 
 
@@ -124,37 +149,54 @@ def get_fragment_center_coords(fragment):
     return int(x), int(y)
 
 
-def database_creator_mode():
-    pass
+def debug_image(image, fragment, x, y):
+    image = debug_mark_frag_on_img(image, fragment)
+    image = cv.circle(image, (x, y), 10, (255, 0, 0), thickness=2)
+    cv.imwrite(config["output_image_dir"] + "fragment center result.jpg", image)
 
 
-def plant_searching_mode():
-    pass
+def run_database_mode():
+    if config["use_camera"]:
+        raise NotImplementedError("Camera usage code is not ready yet.")
+    else:
+        image = cv.imread(config["query_image_path"])
+
+    fragments = get_aoi_fragments(image)
+    save_frags_to_patterns_dir(fragments)
+    try:
+        database = load_database()
+    except FileNotFoundError:
+        database = []
+    add_patterns_to_database(database)
+    dump_database(database)
+
+
+def run_searching_mode():
+    if config["use_camera"]:
+        raise NotImplementedError("Camera usage code is not ready yet.")
+    else:
+        image = cv.imread(config["query_image_path"])
+
+    database = load_database()
+    fragments = get_aoi_fragments(image)
+    fragment, _ = find_most_unlike_frag(fragments, database)
+    x, y = get_fragment_center_coords(fragment)
+
+    # debug
+    print(x, y)
+    debug_image(image, fragment, x, y)
 
 
 def main():
-    # argprse!
-
-    query_image = cv.imread(config["query_image_path"])
-
-    # !!!
-    query_h, query_w = query_image.shape[:2]
-    print('Original Dimensions : ', query_image.shape)
-
-    resized_h = 1200
-    resized_w = int(resized_h * query_w / query_h)
-
-    # resize image
-    resized_image = cv.resize(query_image, (resized_w, resized_h), interpolation=cv.INTER_AREA)
-    print('Resized Dimensions : ', resized_image.shape)
-
-    # !!!
-    weed_fragments = get_aoi_fragments()
-    result_image = mark_fragment_on_img(resized_image, weed_fragments)
-    print("Writing result image to", config["result"], "file.")
-    cv.imwrite(config["output_image_dir"] +
-                "result 1" +
-                config["output_image_extension"], result_image)
+    if config["app_mode"] == "database":
+        print("Starting in database creation mode.")
+        run_database_mode()
+    elif config["app_mode"] == "searching":
+        print("Starting in searching mode.")
+        run_searching_mode()
+    else:
+        print("Unknown mode error. Set correct mode in settings file .../config/local.py")
+        exit(1)
     print("Done.")
 
 
