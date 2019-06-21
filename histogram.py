@@ -10,6 +10,7 @@ from connectors import SmoothieConnector
 import time
 import json
 from multiprocessing import Value
+import sys
 
 if config["use_camera"]:
     from picamera.array import PiRGBArray
@@ -39,7 +40,8 @@ def load_database():
 def save_frags_to_patterns_dir(fragments):
     # single fragment structure is {"img", "start_x", "start_y", "end_x", "end_y"}
     for fragment in fragments:
-        cv.imwrite(config["patterns_dataset_dir"] + "\\" + str(uuid.uuid4()) + ".jpg", fragment["img"])
+        sep = "/" if sys.version_info.minor == 5 else "\\"
+        cv.imwrite(config["patterns_dataset_dir"] + sep + str(uuid.uuid4()) + ".jpg", fragment["img"])
 
 
 def add_patterns_to_database(database: list):
@@ -165,7 +167,8 @@ def get_fragment_center_coords(fragment):
 def debug_image(image, fragment, x, y):
     image = debug_mark_frag_on_img(image, fragment)
     image = cv.circle(image, (x, y), 10, (255, 0, 0), thickness=2)
-    input_name = config["query_image_path"].split("\\")[1]
+    sep = "/" if sys.version_info.minor == 5 else "\\"
+    input_name = config["query_image_path"].split(sep)[1]
     cv.imwrite(config["output_image_dir"] + input_name + " - result.jpg", image)
 
 

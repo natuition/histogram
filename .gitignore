@@ -115,7 +115,7 @@ dmypy.json
 
 # NATUITION
 config/config_local.json
-temp.py
-resize.py
+config/local.py
+temp/
 output/*
 test.py
