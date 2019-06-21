@@ -119,3 +119,4 @@ config/local.py
 temp/
 output/*
 test.py
+*.tmp
