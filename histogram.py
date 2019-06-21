@@ -11,6 +11,7 @@ import time
 import json
 from multiprocessing import Value
 import sys
+import os
 
 if config["use_camera"]:
     from picamera.array import PiRGBArray
@@ -168,8 +169,12 @@ def debug_image(image, fragment, x, y):
     image = debug_mark_frag_on_img(image, fragment)
     image = cv.circle(image, (x, y), 10, (255, 0, 0), thickness=2)
     sep = "/" if sys.version_info.minor == 5 else "\\"
-    input_name = config["query_image_path"].split(sep)[1]
-    cv.imwrite(config["output_image_dir"] + input_name + " - result.jpg", image)
+    output_full_path = config["output_image_dir"] + config["query_image_path"].split(sep)[-1] + " - result.jpg" \
+        if config["use_camera"] \
+        else "Image from camera - result.jpg"
+    if not os.path.exists(config["output_image_dir"]):
+        os.makedirs(config["output_image_dir"])
+    cv.imwrite(output_full_path, image)
 
 
 def read_until_contains(pattern, smc: SmoothieConnector):
