@@ -288,12 +288,12 @@ def run_database_mode():
         print("Loading ", config["query_image_path"])
         image = cv.imread(config["query_image_path"])
 
-    fragments = get_aoi_fragments(image)
-    save_frags_to_patterns_dir(fragments)
     try:
         database = load_database()
     except FileNotFoundError:
         database = []
+    fragments = get_aoi_fragments(image)
+    save_frags_to_patterns_dir(fragments)
     add_patterns_to_database(database)
     dump_database(database)
 
@@ -369,7 +369,6 @@ def run_searching_mode():
             x_current.value += sm_x
             y_current.value += sm_y
 
-        # + или -Z для извлечения и возврата на место, значение Z (в веб серв конфиге мин макс Z = 0, 52)
         # extracting (z)
         print("Extracting, lift down cork with Z", -config["extraction_z"])
         with z_current.get_lock():
