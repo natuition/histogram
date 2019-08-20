@@ -248,7 +248,7 @@ def validate_moving_key(value, key_name, key_min, key_max, key_min_name, key_max
 
 
 def move_cork_to_center(smc: SmoothieConnector):
-    with x_current.getlock():
+    with x_current.get_lock():
         # calc cork center coords and xy movement values for smoothie g-code
         center_x, center_y = int(config_ws_local["X_MAX"] / 2), int(config_ws_local["Y_MAX"] / 2)
         smc_x, smc_y = int(abs(x_current.value - center_x)), int(abs(y_current.value - center_y))
@@ -376,7 +376,7 @@ def run_searching_mode():
             smc.send(g_code)
             response = read_until_not(">", smc)
             print("Response:", response)
-            z_current.value += config["extraction_z"]
+            z_current.value -= config["extraction_z"]
 
         print("Extracting, lift up cork with Z", config["extraction_z"])
         with z_current.get_lock():
